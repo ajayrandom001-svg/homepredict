@@ -51,17 +51,29 @@ if st.session_state.house_df is None:
     }
     locations = rng.choice(list(area_premium.keys()), n)
 
+    # Property type, each with its own price multiplier
+    type_multiplier = {"Flat": 1.0, "Villa": 1.25, "Bungalow": 1.4}
+    property_types = rng.choice(list(type_multiplier.keys()), n, p=[0.6, 0.25, 0.15])
+
+    # Furnishing status, each with its own flat price add-on
+    furnish_premium = {"Unfurnished": 0, "Semi-Furnished": 150000, "Furnished": 350000}
+    furnishing = rng.choice(list(furnish_premium.keys()), n, p=[0.4, 0.35, 0.25])
+
     area_sqft = rng.normal(1500, 500, n).clip(400, None)
     bedrooms = rng.integers(1, 6, n)
     bathrooms = rng.integers(1, 4, n)
     age = rng.integers(0, 40, n)
-    premium = np.array([area_premium[loc] for loc in locations])
+
+    loc_premium = np.array([area_premium[loc] for loc in locations])
+    type_mult = np.array([type_multiplier[t] for t in property_types])
+    furnish_add = np.array([furnish_premium[f] for f in furnishing])
 
     price = (
-        area_sqft * (2500 + premium)  # base rate per sqft + location premium
+        (area_sqft * (2500 + loc_premium) * type_mult)  # base rate + location premium, scaled by property type
         + bedrooms * 80000
         + bathrooms * 50000
         - age * 9000
+        + furnish_add
         + rng.normal(0, 150000, n)
     ).clip(200000, None).round(0)
 
@@ -71,6 +83,8 @@ if st.session_state.house_df is None:
         "bathrooms": bathrooms,
         "age_years": age,
         "location": locations,
+        "property_type": property_types,
+        "furnishing": furnishing,
         "price": price,
     })
 
