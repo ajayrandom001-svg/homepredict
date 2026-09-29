@@ -269,4 +269,4 @@ if st.button("Predict Price"):
     st.success(f"Predicted price: **₹{prediction:,.0f}**")
 
 st.divider()
-st.caption("Built for BE05000231 - Python for Data Science | GTU Semester 5")
+st.caption("Built BY Dhruvan ")
